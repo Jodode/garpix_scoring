@@ -9,6 +9,7 @@ import pandas as pd
 import shutil
 import random
 import re
+import os
 import joblib
 
 import collections
@@ -312,6 +313,8 @@ async def submit_student_id(request: Request, student_id: str = Form(...), db: S
     student_ids = parse_student_ids(student_id)
     predictions = {}
     
+    print(db.query(StudentPerformanceRelease).all())
+
     for sid in student_ids:
         student = db.query(StudentPerformanceRelease).filter((StudentPerformanceRelease.student_id == sid) & (StudentPerformanceRelease.semester == 'II полугодие') & (StudentPerformanceRelease.academic_year == "2022 - 2023")).all()
         if not student:
