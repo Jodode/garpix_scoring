@@ -491,7 +491,12 @@ async def submit_file(request: Request, file: UploadFile = File(...)):
 @app.post("/bot_submit_student_id")
 async def bot_submit_student_id(student_id: str = Form(...)):
     student_ids = parse_student_ids(student_id)
+    # print(student_ids)
     return {"student_ids": student_ids}
+
+@app.get("/healthcheck")
+async def healthcheck():
+    return {"status": "ok"}
 
 @app.post("/bot_submit_file")
 async def bot_submit_file(file: UploadFile = File(...)):
@@ -502,15 +507,75 @@ async def bot_submit_file(file: UploadFile = File(...)):
 
 @app.post("/bot_get_student_performance")
 async def bot_get_student_performance(student_id: int = Form(...), db: Session = Depends(get_db)):
-    student = db.query(Student).filter(Student.id == student_id).first()
-    if student:
-        performance = db.query(Performance).filter(Performance.student_id == student_id).all()
-        student.performance = performance
-        for p in student.performance:
-            p.course = db.query(Course).filter(Course.id == p.course_id).first()
-    return {"student": {"id": student.id, "performance": [{"course": {"course_name": p.course.course_name}, "grade_performance": p.grade_performance} for p in student.performance]}}
+    # print(student_id)
+    # student_ids = parse_student_ids(student_id)
+    # print(student_id)
+    # print(123)
+    # predictions = {}
+    
+    # for sid in student_ids:
+    student = db.query(StudentPerformanceRelease).filter((StudentPerformanceRelease.student_id == int(student_id)) & (StudentPerformanceRelease.semester == 'II полугодие') & (StudentPerformanceRelease.academic_year == "2022 - 2023")).all()
+    data = []
+    subjects = []
+    semesters = []
 
+    for s in student:
+        data.append({
+            "Номер ЛД": s.student_id,
+            "Уровень подготовки": s.preparation_level,
+            "Учебная группа": s.study_group,
+            "Специальность/направление": s.specialization,
+            "Учебный год": s.academic_year,
+            "Полугодие": s.semester,
+            "Дисциплина": s.course,
+            # "Оценка (без пересдач)": s.grade_without_resits,
+            "Оценка (успеваемость)": s.grade_performance,
+            'Институт': s.university,
+            "Год начала обучения": s.start_year,
+            "Год начала семестра": s.start_semester_year,
+            "Номер семестра": s.semester_number,
+            'Дисциплина_encoded': s.course_encoded,
+            '2': s.two_num,
+            '3': s.three_num,
+            '4': s.four_num,
+            '5': s.five_num,
+        })
+        subjects.append(s.course)
+        semesters.append(s.semester_number)
+
+    X_test = pd.DataFrame(data).drop(columns=['Оценка (успеваемость)',])
+    y_true = pd.DataFrame(data)['Оценка (успеваемость)']
+    student_predictions = np.array(list(map(lambda x: x[0], loaded_model.predict(X_test))))
+    acc_grades = round(custom_accuracy(y_true, student_predictions), 2)
+
+    counter_true = collections.Counter(y_true)
+    counter_predict = collections.Counter(student_predictions)
+
+    c_in_true = 0
+    c_in_predict = 0
+
+    if 2 in counter_true:
+        c_in_true = counter_true[2]
+    if 2 in counter_predict:
+        c_in_predict = counter_predict[2]
+    predictions = {}
+    predictions[student_id] = list(zip(subjects, student_predictions, y_true))
+
+    # print('LOL')
+    # print(predictions)
+    update_dtyped = []
+    for item in predictions[student_id]:
+        update_dtyped.append(list(map(str, item)))
+    
+    predictions[student_id] = update_dtyped
+    # return templates.TemplateResponse("index.html", {"request": request, "title": "Главная", "student_ids": student_ids, "predictions": predictions, })
+    predictions['acc'] = acc_grades
+    predictions['c_in_true'] = c_in_true
+    predictions['c_in_predict'] = c_in_predict
+    # print(predictions)
+    
+    return predictions
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=80)

@@ -1,12 +1,12 @@
 import asyncio
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import ParseMode, InputFile
+# from aiogram.types import ParseMode, InputFile
 from aiogram.utils import executor
 import aiohttp
 import re
 
 API_TOKEN = '7257443971:AAGKnyYb49fA-limjqJJqGldqzZMLX-aNC8'
-BASE_URL = 'http://localhost:8000'
+BASE_URL = 'http://web:80'
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
@@ -67,12 +67,19 @@ async def display_results(session, message, student_ids):
     results = []
     for student_id in student_ids:
         async with session.post(f'{BASE_URL}/bot_get_student_performance', data={'student_id': student_id}) as response:
+            # print(response)
             if response.status == 200:
+                # print(response.status)
+                # print(dir(response))
+                # print(type(student_id))
                 data = await response.json()
-                result = f"ID: {data['student']['id']}\n"
-                for performance in data['student']['performance']:
-                    result += f"Курс: {performance['course']['course_name']}, Оценка: {performance['grade_performance']}\n"
+                # print(data)
+                result = f"ID: {student_id}\n"
+                for performance in data[student_id]:
+                    result += f"Курс: {performance[0]}, Предсказанная оценка: {performance[1]}, Настоящаяя оценка: {performance[2]}\n"
+                result += (f'accuracy: {data["acc"]} \n Пересдач в действительности: {data["c_in_true"]} \n Пересдач предсказано: {data["c_in_predict"]}\n')
                 results.append(result)
+
             else:
                 results.append(f"Ошибка при получении данных для студента ID {student_id}")
     await message.reply("\n\n".join(results))
