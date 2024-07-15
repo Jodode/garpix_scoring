@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">База данных</h1>
+{% if student %}
+    <div class="table-responsive">
+        {{ student | safe }}
+    </div>
+{% else %}
+    <p>Данные о студенте не найдены.</p>
+{% endif %}
+<form action="/get_student_performance" method="post" class="mb-4">
+    <div class="form-group">
+        <label>ID студента</label>
+        <input type="text" name="student_id" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Отправить</button>
+</form>
+{% endblock %}

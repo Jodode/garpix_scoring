@@ -1,0 +1,93 @@
+body {
+    background-color: #242424 !important;
+    color: white !important;
+    font-family: Arial, sans-serif;
+}
+
+.navbar {
+    background-color: #1a1a1a;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar a {
+    color: white !important;
+    text-decoration: none;
+    padding: 10px;
+}
+
+.navbar a:hover {
+    color: white !important;
+}
+
+.container {
+    margin-top: 20px;
+    color: white !important;
+}
+
+.form-group {
+    margin-bottom: 10px;
+    color: white !important;
+}
+
+.form-control {
+    margin-bottom: 10px;
+    border-radius: 10px;
+    border: 2px solid green;
+    width: 50%;
+    color: white !important;
+    background-color: #333 !important;
+}
+
+.btn-primary {
+    background-color: green !important;
+    border-color: green !important;
+    border-radius: 10px;
+    margin-top: 10px;
+    padding: 10px 20px;
+    color: white !important;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: darkgreen !important;
+    border-color: darkgreen !important;
+    color: white !important;
+}
+
+.table-responsive {
+    margin-top: 20px;
+    color: white !important;
+    width: 100% !important;
+}
+
+.table {
+    color: white !important;
+    width: 100% !important;
+    table-layout: auto !important;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.table thead th {
+    background-color: #007bff !important;
+    color: #fff !important;
+    border-color: #007bff !important;
+}
+
+.table th, .table td {
+    border-color: #dee2e6 !important;
+    color: white !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.table-hover tbody tr:hover td {
+    color: white !important;
+}

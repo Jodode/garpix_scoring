@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Скоринг студентов</h1>
+{% if student_ids %}
+<div class="alert alert-success" role="alert">
+  ID студентов: {{ student_ids | join(', ') }}
+</div>
+{% if predictions %}
+<div class="alert alert-info" role="alert">
+  {% for sid, preds in predictions.items() %}
+    <p>Студент {{ sid }}:</p>
+    <ul>
+      {% for subject, semester, grade, true_grade in preds[2:] %}
+        <li>{{ subject }} (Семестр {{ semester }}): {{ grade }}   ---   {{true_grade}}</li>
+      {% endfor %}
+    </ul>
+    accuracy: {{preds[0]}}
+    <br>
+    Количество пересдач предсказано - {{'Правильно' if preds[1][0] == preds[1][1] else 'Неверно'}}
+    <br>
+    Пересдач в действительности: {{preds[1][0]}}
+    <br>
+    Модель предсказала: {{preds[1][1]}}
+  {% endfor %}
+</div>
+{% endif %}
+{% endif %}
+<form action="/submit_student_id" method="post" class="mb-4">
+    <div class="form-group">
+        <label>ID студентов (>=1)</label>
+        <input type="text" name="student_id" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Отправить</button>
+</form>
+<form action="/submit_file" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label>Загрузить TXT файл</label>
+        <input type="file" name="file" class="form-control-file" accept=".txt" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Отправить</button>
+</form>
+{% endblock %}
